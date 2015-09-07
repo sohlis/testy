@@ -28,31 +28,35 @@ function callback(error, response, body) {
 
 // END  successfuly requesting the ZESTY JSON
 
-// standin for the dates that we will recieve from the Zesty JSON
-// Key  catering_orders > delivery_date
-var zestyDates =
-[
-'2015-09-04T16:00:00-07:00',
-'2015-09-04T16:00:00-07:00',
-'2015-09-01T12:00:00-07:00',
-'2015-09-01T12:00:00-07:00',
-'2015-09-09T12:00:00-07:00',
-'2015-09-08T08:45:00-07:00',
-'2015-09-08T08:45:00-07:00',
-'2015-09-08T12:00:00-07:00'
-];
 
-var datesParsed = [];
+
+
+// Key  catering_orders > delivery_date
+var zestyDates = [];
+var cateringOrdersID = [];
+// here `sampleJson` is being parsed and every `delivery_date` is being
+// added to array `zestyDates`
+// and making a same-sized array called `cateringOrdersID` so we can go back later
+// and reference the `cateringOrdersID` based on the closest index of `zestyDates` (aka `indexOfClosestZestyDate`)
+var a = sampleJson.catering_orders;
+a.forEach(function(entry) {
+    zestyDates.push(entry.delivery_date)
+    cateringOrdersID.push(entry.id)
+});
+
+var zestyDatesParsed = [];
 
 function dateParser(element, index, array) {
-  return datesParsed.push(Date.parse(element)) ;
+  // basically add the parsed version of the date to `zestyDatesParsed` array
+  return zestyDatesParsed.push(Date.parse(element)) ;
 }
 // This says for every entry in the dates[] run function dateParser,
-// which parses dates and fills datesParsed[] with the appropriate dates
+// which parses dates and fills `zestyDatesParsed[]` with the appropriate dates
 zestyDates.every(dateParser);
-// this just logs our results
-// console.log(datesParsed);
 
+// This takes two params
+// `num` which will be todays date parsed -and-
+//  `arr` which is an array of what will be parsed dates
 function closest (num, arr) {
     var curr = arr[0];
     var diff = Math.abs (num - curr);
@@ -69,27 +73,29 @@ function closest (num, arr) {
 var now = new Date(); //what is right now?
 var nowParsed = Date.parse(now) //what is RN, parsed?
 
-var closestZestyDate = closest (nowParsed, datesParsed)
+var closestZestyDate = closest (nowParsed, zestyDatesParsed)
 
-var indexOfClosestZestyDate = datesParsed.indexOf(closestZestyDate);
+var indexOfClosestZestyDate = zestyDatesParsed.indexOf(closestZestyDate);
 
-console.log(indexOfClosestZestyDate);
+// console.log(indexOfClosestZestyDate);
+
+// the id of the next restaurant we are eating
+var idOfRestaurantInJSON = cateringOrdersID[indexOfClosestZestyDate];
+
+// console.log(idOfRestaurantInJSON);
+
+var cateringOrdersJSON = sampleJson.catering_orders
+
+console.log(cateringOrdersJSON);
+
+// cateringOrdersJSON.filter(function (person) {
+//   return person.dinner == "sushi" }
+// );
+  // => [{ "name": "john", "dinner": "sushi" }]
 
 
-// console.log(sampleJson)
 
-// console.log(sampleJson.catering_orders);
-
-var newZestyDates = [];
-
-var a = sampleJson.catering_orders;
-a.forEach(function(entry) {
-    newZestyDates.push(entry.delivery_date)
-});
-
-console.log(newZestyDates);
-
-var parsedNewZestyDates = newZestyDates.every(dateParser);
+// var parsedNewZestyDates = newZestyDates.every(dateParser);
 
 
 
