@@ -1,7 +1,8 @@
 // BEGIN successfuly requesting the ZESTY JSON
 var request = require('request');
-// Just a standin before we make the real live request
-var sampleJson = require('./sample.json')
+var ourJson = require('./aSample.json')
+
+var fs = require("fs");
 
 var headers = {
     'Origin': 'https://catering.zesty.com',
@@ -26,6 +27,12 @@ function callback(error, response, body) {
     // }
 }
 
+// Don't touch
+request(options, callback).pipe(fs.createWriteStream("aSample.json"));
+
+
+
+
 // END  successfuly requesting the ZESTY JSON
 
 
@@ -34,11 +41,11 @@ function callback(error, response, body) {
 // Key  catering_orders > delivery_date
 var zestyDates = [];
 var cateringOrdersID = [];
-// here `sampleJson` is being parsed and every `delivery_date` is being
+// here `ourJson` is being parsed and every `delivery_date` is being
 // added to array `zestyDates`
 // and making a same-sized array called `cateringOrdersID` so we can go back later
 // and reference the `cateringOrdersID` based on the closest index of `zestyDates` (aka `indexOfClosestZestyDate`)
-var a = sampleJson.catering_orders;
+var a = ourJson.catering_orders;
 a.forEach(function(entry) {
     zestyDates.push(entry.delivery_date)
     cateringOrdersID.push(entry.id)
@@ -84,7 +91,7 @@ var idOfRestaurantInJSON = cateringOrdersID[indexOfClosestZestyDate];
 
 // console.log(idOfRestaurantInJSON);
 
-var cateringOrdersJSON = sampleJson.catering_orders
+var cateringOrdersJSON = ourJson.catering_orders
 
 for(var i = 0; i < cateringOrdersJSON.length; i++)
 {
@@ -108,14 +115,3 @@ console.log(todaysZestyMeal);
 
 
 // var parsedNewZestyDates = newZestyDates.every(dateParser);
-
-
-
-
-
-
-
-
-
-// Don't touch
-request(options, callback);
