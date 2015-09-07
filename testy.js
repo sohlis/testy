@@ -86,7 +86,19 @@ var idOfRestaurantInJSON = cateringOrdersID[indexOfClosestZestyDate];
 
 var cateringOrdersJSON = sampleJson.catering_orders
 
-console.log(cateringOrdersJSON);
+for(var i = 0; i < cateringOrdersJSON.length; i++)
+{
+  if(cateringOrdersJSON[i].id == idOfRestaurantInJSON)
+  {
+   var nextZestyRestaurant = (cateringOrdersJSON[i].restaurant_name);
+   var nextZestyRestaurantCuisine = (cateringOrdersJSON[i].restaurant_cuisine);
+   var nextZestyRestaurantDesc = (cateringOrdersJSON[i].restaurant_description);
+  }
+}
+
+var todaysZestyMeal = [nextZestyRestaurant,nextZestyRestaurantCuisine,nextZestyRestaurantDesc]
+
+console.log(todaysZestyMeal);
 
 // cateringOrdersJSON.filter(function (person) {
 //   return person.dinner == "sushi" }
