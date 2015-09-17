@@ -1,10 +1,5 @@
 
 var request = require('request');
-// Importing the JSON that the zesty API has returns
-var ourJson = require('./aSample.json')
-// How we interact with the filesystem
-var fs = require("fs");
-
 /*
 BEGIN request from Zesty API
 */
@@ -27,88 +22,87 @@ var options = {
     headers: headers
 };
 
-function callback(error, response, body) {
-}
 
-// So this pipes the `request` retun of `body` to a file named `aSample.json`
-request(options, callback).pipe(fs.createWriteStream("aSample.json"));
+request(options, function (error, response, body) {
+  if (!error && response.statusCode == 200) {
 
-/*
-END request from Zesty API
-*/
 
-// Making empty arrays for both the zesty delivery dates `zestyDates`
-// and their corresponing order IDs `cateringOrdersID`
-var zestyDates = [];
-var cateringOrdersID = [];
-// here `ourJson` is being parsed and every `delivery_date` is being
-// added to array `zestyDates`
-// and making a same-sized array called `cateringOrdersID` so we can go back later
-// and reference the `cateringOrdersID` based on the closest index of `zestyDates` (aka `indexOfClosestZestyDate`)
-var a = ourJson.catering_orders;
-a.forEach(function(entry) {
-    zestyDates.push(entry.delivery_date)
-    cateringOrdersID.push(entry.id)
-});
+  var parsedBody = JSON.parse(body);
 
-var zestyDatesParsed = [];
+  // Making empty arrays for both the zesty delivery dates `zestyDates`
+  // and their corresponing order IDs `cateringOrdersID`
+  var zestyDates = [];
+  var cateringOrdersID = [];
+  // here `ourJson` is being parsed and every `delivery_date` is being
+  // added to array `zestyDates`
+  // and making a same-sized array called `cateringOrdersID` so we can go back later
+  // and reference the `cateringOrdersID` based on the closest index of `zestyDates` (aka `indexOfClosestZestyDate`)
 
-function dateParser(element, index, array) {
-  // basically add the parsed version of the date to `zestyDatesParsed` array
-  return zestyDatesParsed.push(Date.parse(element)) ;
-}
-// This says for every entry in the dates[] run function dateParser,
-// which parses dates and fills `zestyDatesParsed[]` with the appropriate dates
-zestyDates.every(dateParser);
+  parsedBody.catering_orders.forEach(function(entry) {
+      zestyDates.push(entry.delivery_date)
+      cateringOrdersID.push(entry.id)
+  });
 
-// This takes two params
-// `num` which will be todays date parsed -and-
-//  `arr` which is an array of what will be parsed dates
-function closest (num, arr) {
-    var curr = arr[0];
-    var diff = Math.abs (num - curr);
-    for (var val = 0; val < arr.length; val++) {
-        var newdiff = Math.abs (num - arr[val]);
-        if (newdiff < diff) {
-            diff = newdiff;
-            curr = arr[val];
-        }
-    }
-    return curr;
-}
+  var zestyDatesParsed = [];
 
-var rightNow = new Date(); //what is right now?
-var rightNowParsed = Date.parse(rightNow) //what is RN, parsed?
-
-// so basically we are looking at all possible dates that zesty will be deliverying soon
-// and then taking today and seeing what the closest zesty date is to today
-var closestZestyDate = closest(rightNowParsed, zestyDatesParsed)
-
-// Where is the closest zesty date located in the array of all possible dates
-var indexOfClosestZestyDate = zestyDatesParsed.indexOf(closestZestyDate);
-
-// This is the corresponing restaurant id from the `cateringOrdersID` array,
-// based on the index that we found out from learning the closest date
-var idOfRestaurantInJSON = cateringOrdersID[indexOfClosestZestyDate];
-
-// just trimming some of that fat off dat big `ourJson` object
-var cateringOrdersJSON = ourJson.catering_orders
-
-// we cycle through all the different restaurants, looking for the id that
-// we got in `idOfRestaurantInJSON`
-for(var i = 0; i < cateringOrdersJSON.length; i++)
-{
-  if(cateringOrdersJSON[i].id == idOfRestaurantInJSON)
-  {
-    // ferk yerg! we found it, now we store dose values
-   var nextZestyRestaurant = (cateringOrdersJSON[i].restaurant_name);
-   var nextZestyRestaurantCuisine = (cateringOrdersJSON[i].restaurant_cuisine);
-   var nextZestyRestaurantDesc = (cateringOrdersJSON[i].restaurant_description);
+  function dateParser(element, index, array) {
+    // basically add the parsed version of the date to `zestyDatesParsed` array
+    return zestyDatesParsed.push(Date.parse(element)) ;
   }
+  // This says for every entry in the dates[] run function dateParser,
+  // which parses dates and fills `zestyDatesParsed[]` with the appropriate dates
+  zestyDates.every(dateParser);
+
+  // This takes two params
+  // `num` which will be todays date parsed -and-
+  //  `arr` which is an array of what will be parsed dates
+  function closest (num, arr) {
+      var curr = arr[0];
+      var diff = Math.abs (num - curr);
+      for (var val = 0; val < arr.length; val++) {
+          var newdiff = Math.abs (num - arr[val]);
+          if (newdiff < diff) {
+              diff = newdiff;
+              curr = arr[val];
+          }
+      }
+      return curr;
+  }
+
+  var rightNow = new Date(); //what is right now?
+  var rightNowParsed = Date.parse(rightNow) //what is RN, parsed?
+
+  // so basically we are looking at all possible dates that zesty will be deliverying soon
+  // and then taking today and seeing what the closest zesty date is to today
+  var closestZestyDate = closest(rightNowParsed, zestyDatesParsed)
+
+  // Where is the closest zesty date located in the array of all possible dates
+  var indexOfClosestZestyDate = zestyDatesParsed.indexOf(closestZestyDate);
+
+  // This is the corresponing restaurant id from the `cateringOrdersID` array,
+  // based on the index that we found out from learning the closest date
+  var idOfRestaurantInJSON = cateringOrdersID[indexOfClosestZestyDate];
+
+  // just trimming some of that fat off dat big `ourJson` object
+  var cateringOrdersJSON = parsedBody.catering_orders
+
+  // we cycle through all the different restaurants, looking for the id that
+  // we got in `idOfRestaurantInJSON`
+  for(var i = 0; i < cateringOrdersJSON.length; i++)
+  {
+    if(cateringOrdersJSON[i].id == idOfRestaurantInJSON)
+    {
+      // ferk yerg! we found it, now we store dose values
+     var nextZestyRestaurant = (cateringOrdersJSON[i].restaurant_name);
+     var nextZestyRestaurantCuisine = (cateringOrdersJSON[i].restaurant_cuisine);
+     var nextZestyRestaurantDesc = (cateringOrdersJSON[i].restaurant_description);
+    }
+  }
+
+  // putting them in a big 'ol array for safe keeping
+  var todaysZestyMeal = [nextZestyRestaurant,nextZestyRestaurantCuisine,nextZestyRestaurantDesc]
+
+  // showing off for the ladies
+  console.log(todaysZestyMeal);
 }
-
-// putting them in a big 'ol array for safe keeping
-var todaysZestyMeal = [nextZestyRestaurant,nextZestyRestaurantCuisine,nextZestyRestaurantDesc]
-
-// showing off for the ladies
-console.log(todaysZestyMeal);
+});
