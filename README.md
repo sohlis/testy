@@ -32,7 +32,7 @@ _Realtime platform for Zesty analytics optimized for significant mouthfeel retur
 
 ### Installation
 
-1. Don't mess with `npm install`, its already there
+1. `npm install`
 
 2. Then just `node testy.js` for now
 
